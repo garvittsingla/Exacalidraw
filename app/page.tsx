@@ -1,103 +1,63 @@
-import Image from "next/image";
+"use client";
+import { useShapeContext } from "@/contexts/Shapecontext";
+import Initdraw from "@/game/initdraw";
+import { RectangleHorizontal,Circle,LineSquiggle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+   const canvasref = useRef<HTMLCanvasElement>(null)
+    const {selectedshape, setselectedshape,existingshapes, setexisitingshapes} = useShapeContext()
+     const [dimensions, setDimensions] = useState({ width: 800, height: 600 })
+    
+    useEffect(() => {
+        setDimensions({
+            width: window.innerWidth,
+            height: window.innerHeight
+        })
+        
+       
+        const handleResize = () => {
+            setDimensions({
+                width: window.innerWidth,
+                height: window.innerHeight
+            })
+        }
+        
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
+    useEffect(()=>{
+        if(canvasref.current){
+            Initdraw(canvasref.current,selectedshape,existingshapes!,setexisitingshapes!);
+        }
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    },[canvasref,selectedshape,existingshapes,setexisitingshapes])
+
+     useEffect(() => {
+        const localstorageshapes = localStorage.getItem("shapes");
+        if(localstorageshapes){
+            try {
+                const shapes = JSON.parse(localstorageshapes);
+                setexisitingshapes!(shapes);
+            } catch (error) {
+                console.error("Error parsing shapes from localStorage:", error);
+            }
+        }
+    }, [setexisitingshapes]) 
+
+    return <div className="relative h-screen w-screen">
+        <div className="top-7 left-[45%] absolute h-10 w-50  border-[1px] bg-neutral-900 z-100 rounded-md flex items-center justify-start px-2 gap-2">
+            <button onClick={() => setselectedshape("circle")}>
+                <Circle className={`h-6 w-6 cursor-pointer ${selectedshape === "circle" ? "bg-white/20 rounded-md" : "text-white"}`} />
+            </button>
+            <button onClick={() => setselectedshape("rect")}>
+                <RectangleHorizontal className={`${selectedshape === "rect" ? "bg-white/20 rounded-md" : "text-white"} h-6 w-6 cursor-pointer`} />
+            </button>
+            <button onClick={() => setselectedshape("line")}>
+                <LineSquiggle className={`${selectedshape === "line" ? "bg-white/20 rounded-md" : "text-white"} h-6 w-6 cursor-pointer`} />
+            </button>
+            <button className={`cursor-pointer`} onClick={() => setexisitingshapes!([])}>Clear</button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <canvas className="absolute top-0 left-0" height={dimensions.height} width={dimensions.width} ref={canvasref}></canvas>   
     </div>
-  );
 }
