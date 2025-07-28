@@ -15,8 +15,8 @@ export type Shape={
     type: 'line'
 }
 interface shapeContextType {
-    selectedshape : "rect" | "circle";
-    setselectedshape:(value: "rect" | "circle") => void;
+    selectedshape : "rect" | "circle" | "line";
+    setselectedshape:(value: "rect" | "circle" | "line") => void;
     existingshapes?: Shape[];
     setexisitingshapes?: (shapes: Shape[]) => void;
 }
@@ -24,12 +24,12 @@ interface shapeContextType {
 export const ShapeContext = createContext<shapeContextType | undefined>(undefined);
 
 export const ShapeProvider = ( { children }: { children: React.ReactNode }) => {
-    const [selectedshape, setselectedshape] = useState<"rect" | "circle">("rect");
+    const [selectedshape, setselectedshape] = useState<"rect" | "circle" | "line">("rect");
     const [existingshapes, setexisitingshapes] = useState<Shape[]>([]);
 
     return (
         <ShapeContext.Provider value={{ selectedshape, setselectedshape, existingshapes, setexisitingshapes }}>
-            {children}
+            {children}  
         </ShapeContext.Provider>
     );
 };
